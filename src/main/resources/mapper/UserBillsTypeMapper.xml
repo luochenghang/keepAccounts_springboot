@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lch.bills.repo.UserBillsTypeRepo">
+
+    <insert id="save" useGeneratedKeys="true" keyProperty="id">
+        insert into t_user_bills_type(userId,billsTypeId,`name`,imgUrl,sort,`type`,createDate) SELECT
+        #{userId},#{billsTypeId},#{name},#{imgUrl},0,#{type},now() from dual
+        WHERE NOT EXISTS(SELECT id FROM t_user_bills_type WHERE userId = #{userId} and billsTypeId=#{billsTypeId})
+    </insert>
+    <select id="getUserBillsTypeList" resultType="com.lch.bills.pojo.UserBillsType">
+        select * from t_user_bills_type where userId = #{userId} and type=#{type} order by sort
+
+    </select>
+
+    <update id="sortUserBillsType"></update>
+
+</mapper>

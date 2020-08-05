@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lch.bills.repo.BillsRepo">
+
+    <select id="save" resultType="java.lang.Integer">
+        insert into t_bills(userId,userBillsTypeId,`money`,remake,createDate) SELECT
+        #{userId},#{userBillsTypeId},#{money},#{remake},now() from dual
+    </select>
+
+
+
+    <resultMap type="com.lch.bills.pojo.vo.EveryDayBills" id="EveryDayBillsMap">
+        <result column="everyDaySumMoney" property="everyDaySumMoney" />
+        <result column="createDate" property="createDate" />
+        <result column="weeks" property="weeks" />
+        <collection property="bills" column="createDate"
+                    ofType="com.lch.bills.pojo.Bills" select="findBills">
+        </collection>
+    </resultMap>
+    <select id="findBills" resultType="com.lch.bills.pojo.Bills">
+		select * from
+		t_bills t
+		join t_user_bills_type ub on ub.id = t.userBillsTypeId
+		where to_days(t.createDate) = #{createDate}
+		where
+	</select>
+    <select id="getBillsList" resultMap="EveryDayBillsMap">
+        SELECT
+        t.createDate,
+        CASE
+        WHEN DAYOFWEEK(t.createDate) = 2 THEN
+        '星期一'
+        WHEN DAYOFWEEK(t.createDate) = 3 THEN
+        '星期二'
+        WHEN DAYOFWEEK(t.createDate) = 4 THEN
+        '星期三'
+        WHEN DAYOFWEEK(t.createDate) = 5 THEN
+        '星期四'
+        WHEN DAYOFWEEK(t.createDate) = 6 THEN
+        '星期五'
+        WHEN DAYOFWEEK(t.createDate) = 7 THEN
+        '星期六'
+        ELSE
+        '星期天'
+        END AS weeks,
+        SUM(t.money) AS everyDaySumMoney
+        FROM
+        t_bills t
+        WHERE
+        DATE_FORMAT(t.createDate, '%Y%m') = DATE_FORMAT(now(), '%Y%m')
+        and t.userId= #{userId}
+        GROUP BY
+        TO_DAYS(t.createDate)
+        ORDER BY
+        t.createDate desc
+    </select>
+
+
+</mapper>

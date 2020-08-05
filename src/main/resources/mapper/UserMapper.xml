@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lch.bills.repo.UserRepo">
+
+    <insert id="addUser" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO t_user(
+			nick_name,
+			portrait,
+			sex,
+			openid,
+			real_name,
+			phone_no,
+			city_id,
+			id_card,
+			create_date
+		)
+		SELECT
+			#{nickName},
+			#{portrait},
+			#{sex},
+			#{openid},
+			#{realName},
+			#{phoneNo},
+			#{cityId},
+			#{idCard},
+			now()
+		FROM dual
+		WHERE NOT EXISTS(SELECT id FROM t_user WHERE `openid` = #{openid})
+	</insert>
+
+    <update id="updUser">
+        UPDATE t_user set
+        <if test="realName != null and realName != ''">real_name=#{realName},</if>
+        <if test="idCard != null and idCard != ''">id_card=#{idCard},</if>
+        <if test="cityId != null and cityId != ''">city_id=#{cityId},</if>
+        <if test="nickName != null and nickName != ''">nick_name=#{nickName},</if>
+        <if test="phoneNo != null and phoneNo != ''">phone_no=#{phoneNo},</if>
+        <if test="portrait != null and portrait != ''">portrait=#{portrait},</if>
+        <if test="sex != null">sex=#{sex},</if>
+        update_date = now()
+        WHERE id=#{id}
+    </update>
+
+
+    <select id="CountStatistics" resultType="com.lch.bills.pojo.vo.CountInfo">
+        SELECT
+            (SELECT COUNT(*) from t_bills where userId = 1 ) as totalBillsNums,
+            (SELECT SUM(t.num) from (SELECT COUNT(1) as num from t_bills where userId = #{userId} GROUP BY DATE_FORMAT(createDate, '%Y%m%d')) t)  as totalKeepAccountsDays,
+            (SELECT IFNULL(SUM(money),0) from t_bills where userId = #{userId} and type = 1 ) as totalPay,
+            (SELECT IFNULL(SUM(money),0) from t_bills where userId = #{userId} and type = 2) as totalEarn,
+            (SELECT DATEDIFF(NOW(),MIN(createDate)) from t_bills where userId = #{userId}) as totalDays
+
+    </select>
+
+</mapper>

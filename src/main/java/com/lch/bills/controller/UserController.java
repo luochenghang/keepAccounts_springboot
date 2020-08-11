@@ -5,15 +5,9 @@ import com.lch.bills.common.AjaxResponse;
 import com.lch.bills.common.Anonymous;
 import com.lch.bills.common.App;
 import com.lch.bills.common.BaseController;
-import com.lch.bills.common.exceptions.ServiceException;
-import com.lch.bills.jwt.JwtInfo;
-import com.lch.bills.jwt.JwtUtils;
 import com.lch.bills.pojo.UlBo;
-import com.lch.bills.pojo.User;
 import com.lch.bills.service.UserBillsTypeService;
 import com.lch.bills.service.UserService;
-import com.lch.bills.utils.MD5Util;
-import com.lch.bills.utils.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -85,8 +79,8 @@ public class UserController extends BaseController {
 //    }
 
 
-
-    @GetMapping("")
+//统计用户的数据
+    @GetMapping("CountStatistics")
     public AjaxResponse CountStatistics() {
         logger.info("CountStatistics");
         try {
@@ -97,6 +91,17 @@ public class UserController extends BaseController {
         }
     }
 
+    //导出数据
+    @PostMapping("exportData")
+    public AjaxResponse exportData() {
+        logger.info("exportData:");
+        try {
+
+            return succees(userService.addUserFiles());
+        }catch (Exception e){
+            return fail(e.getMessage());
+        }
+    }
 
     /*************************************************************/
     //测试接口，登录状态

@@ -33,4 +33,6 @@ public interface UserService {
 //    void updPassword(String oldPwd, String newPwd) throws Exception;
 
     CountInfo CountStatistics();
+
+    int addUserFiles() throws Exception;
 }

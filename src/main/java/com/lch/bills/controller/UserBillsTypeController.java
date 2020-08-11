@@ -83,6 +83,20 @@ public class UserBillsTypeController extends BaseController {
     }
 
     /**
+     * 获取账单类型
+     * @return
+     */
+    @GetMapping("/getSystemBillsTypeList")
+    public AjaxResponse getSystemBillsTypeList() {
+        logger.info("getSystemBillsTypeList:");
+        try {
+            return succees(userBillsTypeService.getSystemBillsTypeList());
+        }catch (Exception e){
+            return fail(e.getMessage());
+        }
+    }
+
+    /**
      * 排序账单类型
      * @param id
      * @param beforeId

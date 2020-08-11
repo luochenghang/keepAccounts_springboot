@@ -4,6 +4,7 @@ import com.lch.bills.pojo.BillsType;
 import com.lch.bills.pojo.UserBillsType;
 import com.lch.bills.repo.UserBillsTypeRepo;
 import com.lch.bills.service.UserBillsTypeService;
+import com.lch.bills.utils.RegexUtils;
 import com.lch.bills.utils.UserUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,14 @@ public class UserBillsTypeServiceImpl implements UserBillsTypeService {
     @Override
     public void addUserBillsType(UserBillsType userBillsType) throws Exception {
         userBillsType.setUserId(UserUtils.getCurrentUserId());
+        if (RegexUtils.getWordCount(userBillsType.getName())>8){
+            throw new Exception("类型名称且不超过4个字");
+        }
+        BillsType systemBills = userBillsTypeRepo.getSystemBills(userBillsType.getBillsTypeId());
+        if (systemBills == null)
+            throw new Exception("类型选择异常");
+
+        userBillsType.setImgUrl(systemBills.getImgUrl());
         userBillsTypeRepo.save(userBillsType);
     }
 
@@ -57,5 +66,10 @@ public class UserBillsTypeServiceImpl implements UserBillsTypeService {
             userBillsTypeRepo.save(userBillsType);
         }
         return null;
+    }
+
+    @Override
+    public List<BillsType> getSystemBillsTypeList() {
+        return userBillsTypeRepo.getSystemBillsTypeList();
     }
 }

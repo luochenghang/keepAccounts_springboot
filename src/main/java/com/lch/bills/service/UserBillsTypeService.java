@@ -1,5 +1,6 @@
 package com.lch.bills.service;
 
+import com.lch.bills.pojo.BillsType;
 import com.lch.bills.pojo.UserBillsType;
 
 import java.util.List;
@@ -16,4 +17,6 @@ public interface UserBillsTypeService {
     int sortUserBillsType(Long id, Long beforeId);
 
     Integer init(Long id);
+
+    List<BillsType> getSystemBillsTypeList();
 }

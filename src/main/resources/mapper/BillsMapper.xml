@@ -2,18 +2,44 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.lch.bills.repo.BillsRepo">
 
-    <select id="save" resultType="java.lang.Integer">
-        insert into t_bills(userId,userBillsTypeId,`money`,remake,createDate) SELECT
-        #{userId},#{userBillsTypeId},#{money},#{remake},now() from dual
+    <insert id="save">
+        insert into t_bills(userId,userBillsTypeId,`money`,`type`,remake,createDate) SELECT
+        #{userId},#{userBillsTypeId},#{money},#{type},#{remake},#{createDate} from dual
+    </insert>
+
+    <update id="editBills">
+        update t_bills set
+        <if test="remake!=null">
+            remake = #{remake},
+        </if>
+        <if test="money!=null">
+            money = #{money},
+        </if>
+        <if test="createDate!=null">
+            createDate = #{createDate},
+        </if>
+        updateDate = now()
+        where id =#{id} and userId=#{userId}
+
+    </update>
+
+    <select id="getAllBillsList" resultType="com.lch.bills.pojo.Bills">
+       select * from
+		t_bills t
+		join t_user_bills_type ub on ub.id = t.userBillsTypeId
+		where t.userId=#{userId}
+		order by t.createDate,t.id
+
     </select>
 
 
-
     <resultMap type="com.lch.bills.pojo.vo.EveryDayBills" id="EveryDayBillsMap">
-        <result column="everyDaySumMoney" property="everyDaySumMoney" />
-        <result column="createDate" property="createDate" />
-        <result column="weeks" property="weeks" />
-        <collection property="bills" column="createDate"
+        <result column="everyDaySumMoney" property="everyDaySumMoney"/>
+        <result column="everyDayPayIn" property="everyDayPayIn"/>
+        <result column="everyDayPayOut" property="everyDayPayOut"/>
+        <result column="createDate" property="createDate"/>
+        <result column="weeks" property="weeks"/>
+        <collection property="bills" column="{createDate = createDate,userId = userId}"
                     ofType="com.lch.bills.pojo.Bills" select="findBills">
         </collection>
     </resultMap>
@@ -21,11 +47,12 @@
 		select * from
 		t_bills t
 		join t_user_bills_type ub on ub.id = t.userBillsTypeId
-		where to_days(t.createDate) = #{createDate}
-		where
+		where to_days(t.createDate) = to_days(#{createDate})
+		and t.userId=#{userId}
 	</select>
     <select id="getBillsList" resultMap="EveryDayBillsMap">
         SELECT
+        t.userId,
         t.createDate,
         CASE
         WHEN DAYOFWEEK(t.createDate) = 2 THEN
@@ -43,11 +70,13 @@
         ELSE
         '星期天'
         END AS weeks,
+        SUM(case when t.money &gt; 0 THEN t.money else 0 end) AS everyDayPayIn,
+        ABS(SUM(case when t.money &lt; 0 THEN t.money else 0 end)) AS everyDayPayOut,
         SUM(t.money) AS everyDaySumMoney
         FROM
         t_bills t
         WHERE
-        DATE_FORMAT(t.createDate, '%Y%m') = DATE_FORMAT(now(), '%Y%m')
+        DATE_FORMAT(t.createDate, '%Y%m') = DATE_FORMAT(#{createDate}, '%Y%m')
         and t.userId= #{userId}
         GROUP BY
         TO_DAYS(t.createDate)
@@ -55,5 +84,181 @@
         t.createDate desc
     </select>
 
+    <select id="getBills" resultType="com.lch.bills.pojo.Bills">
+    select * from
+		t_bills t
+		join t_user_bills_type ub on ub.id = t.userBillsTypeId
+		where  t.id=#{id}
+
+</select>
+
+    <!--  图表数据  -->
+    <select id="everyWeekData" resultType="com.lch.bills.pojo.vo.ChartData">
+        select
+            t.days,
+            abs(IFNULL(sum(b.money),0)) as sumMoney
+        from (
+        SELECT
+        date_add(
+        #{minDate},
+        INTERVAL (
+        cast(
+        help_topic_id AS signed INTEGER
+        )
+        ) DAY
+        ) days
+        FROM
+        mysql.help_topic
+        WHERE
+        help_topic_id &lt; 7
+        ORDER BY
+        help_topic_id
+        ) t
+        LEFT JOIN t_bills b on TO_DAYS(t.days) = TO_DAYS(b.createDate) and b.type = #{type} and b.userId = #{userId}
+        GROUP BY t.days
+        order by t.days
+    </select>
+
+    <select id="everyMonthData" resultType="com.lch.bills.pojo.vo.ChartData">
+
+        SELECT
+        t.days,
+        abs(IFNULL(sum(b.money),0)) as sumMoney
+        FROM
+        (
+        SELECT
+        date_add(
+        concat(
+        date_format(LAST_DAY(#{createDate}), '%Y-%m-'),
+        '01'
+        ),
+        INTERVAL (
+        cast(
+        help_topic_id AS signed INTEGER
+        )
+        ) DAY
+        ) days
+        FROM
+        mysql.help_topic
+        WHERE
+        help_topic_id &lt; DAY (last_day(#{createDate}))
+        ORDER BY
+        help_topic_id
+        ) t
+        LEFT JOIN t_bills b ON TO_DAYS(t.days) = TO_DAYS(b.createDate)
+        AND b.type = #{type} and b.userId = #{userId}
+        GROUP BY
+        t. days
+        ORDER BY
+        t. days
+    </select>
+
+    <select id="everyYearData" resultType="com.lch.bills.pojo.vo.ChartData">
+
+        SELECT
+        t.days,
+        abs(IFNULL(sum(b.money),0)) as sumMoney
+        FROM
+        (
+        SELECT
+        concat(
+        #{year},
+        '-',
+        CASE
+        WHEN help_topic_id &lt;  9 THEN
+        CONCAT('0', help_topic_id+1)
+        ELSE
+        help_topic_id+1
+        end
+        ) days
+        FROM
+        mysql.help_topic
+        WHERE
+        help_topic_id &lt;  12
+        ) t
+        LEFT JOIN t_bills b ON DATE_FORMAT( CONCAT(t.days,'-01'), '%Y%m' ) = DATE_FORMAT( b.createDate , '%Y%m' )
+        AND b.type = #{type} and b.userId = #{userId}
+        GROUP BY t. days
+        ORDER BY t. days
+    </select>
+
+    
+    <select id="chartsDataDetail" resultType="com.lch.bills.pojo.Bills">
+
+        SELECT
+	*, ROUND(
+		A.sumMoney / (
+			SELECT
+				SUM(ABS(money)) sumMoney
+			FROM
+				t_bills
+			WHERE
+				type = #{type}
+			AND userId = #{userId}
+			AND createDate BETWEEN #{startDate}
+			AND #{endDate}
+		),
+		4
+	) AS percentMoney
+FROM
+	(
+		SELECT
+			t.id,t.userBillsTypeId,t.userId,abs(t.money) as money,t.remake,t.createDate,t.updateDate,t.type, u.`name`,
+			u.imgUrl,
+			SUM(ABS(money)) sumMoney
+		FROM
+			t_bills t
+		JOIN t_user_bills_type u ON t.userBillsTypeId = u.id
+		WHERE
+			t.type = #{type}
+			AND t.userId = #{userId}
+			AND t.createDate BETWEEN #{startDate}
+			AND #{endDate}
+		GROUP BY
+			t.remake,
+            t.userBillsTypeId
+	) AS A
+ORDER BY
+	percentMoney DESC
+    </select>
+
+    <select id="getBillsByRemakeAndTypeId" resultType="com.lch.bills.pojo.Bills">
+        SELECT
+	*, ROUND(
+		ABS(A.money) / (
+			SELECT
+				sum(ABS(money))
+			FROM
+				t_bills t
+			JOIN t_user_bills_type u ON t.userBillsTypeId = u.id
+			WHERE
+				t.type = #{type}
+			AND t.userId = #{userId}
+			AND t.createDate BETWEEN #{startDate}
+			AND #{endDate}
+			AND t.remake = #{remake}
+			AND t.userBillsTypeId = #{userBillsTypeId}
+		),
+		4
+	) AS percentMoney
+FROM
+	(
+		SELECT
+			t.id,t.userBillsTypeId,t.userId,abs(t.money) as money,t.remake,t.createDate,t.updateDate,t.type, u.`name`,
+			u.imgUrl
+		FROM
+			t_bills t
+		JOIN t_user_bills_type u ON t.userBillsTypeId = u.id
+		WHERE
+			t.type = #{type}
+			AND t.userId = #{userId}
+			AND t.createDate BETWEEN #{startDate}
+			AND #{endDate}
+			AND t.remake = #{remake}
+			AND t.userBillsTypeId = #{userBillsTypeId}
+	) A
+ORDER BY
+	percentMoney DESC
+    </select>
 
 </mapper>

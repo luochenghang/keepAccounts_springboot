@@ -1,5 +1,6 @@
 package com.lch.bills.utils;
 
+import com.lch.bills.jwt.JwtInfo;
 import com.lch.bills.jwt.JwtUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -29,8 +30,7 @@ public class UserUtils {
         try {
             String token = getRequest().getHeader("token");
             if (StringUtils.isNotBlank(token)) {
-                uid = ObjectUtils.toLongForNull(JwtUtils.validateJWT(token).getClaims()
-                        .get(JwtUtils.JWT_KEY_USER_ID).toString());
+                uid = ObjectUtils.toLongForNull(JwtUtils.validateJWT(token).getUid());
             }
         } catch (Exception e) {
             return null;

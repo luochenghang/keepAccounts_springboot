@@ -48,4 +48,10 @@ public interface UserBillsTypeRepo{
 
     @Select("select * from t_bills_type where type != 0")
     List<BillsType> getInitBillsType();
+
+    @Select("select * from t_bills_type where type = 0")
+    List<BillsType> getSystemBillsTypeList();
+
+    @Select("select * from t_bills_type where id = #{id}")
+    BillsType getSystemBills(Long id);
 }

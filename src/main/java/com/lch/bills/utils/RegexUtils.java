@@ -318,7 +318,6 @@ public class RegexUtils {
 	 * 判断字段是否超长 字串为空返回fasle, 超过长度{leng}返回ture 反之返回false
 	 *
 	 * @param str
-	 * @param leng
 	 * @return boolean
 	 */
 	public static boolean isLengOut(String str, int len) {
@@ -456,6 +455,22 @@ public class RegexUtils {
 		if (StringUtils.isEmpty(text) || StringUtils.isEmpty(reg))
 			return false;
 		return Pattern.compile(reg).matcher(text).matches();
+	}
+
+	public static int getWordCount(String s)
+	{
+		int length = 0;
+		for(int i = 0; i < s.length(); i++)
+		{
+			int ascii = Character.codePointAt(s, i);
+			if(ascii >= 0 && ascii <=255)
+				length++;
+			else
+				length += 2;
+
+		}
+		return length;
+
 	}
 
 }

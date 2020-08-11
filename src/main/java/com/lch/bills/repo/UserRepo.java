@@ -1,6 +1,7 @@
 package com.lch.bills.repo;
 
 import com.lch.bills.pojo.UserBase;
+import com.lch.bills.pojo.UserFiles;
 import com.lch.bills.pojo.vo.CountInfo;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
@@ -17,7 +18,15 @@ public interface UserRepo {
     @Select("SELECT * FROM t_user WHERE openid = #{openid}")
     UserBase getUserBaseByOpenid(String openid);
 
+    @Select("SELECT * FROM t_user WHERE id = #{userId}")
+    UserBase get(Long userId);
+
     int addUser(UserBase user);
 
     int updUser(UserBase user);
+
+    Integer addUserFiles(UserFiles userFiles);
+
+    @Select("select count(1) from t_user_files where userId = #{userId} and to_days(createDate)=to_days(now())")
+    int getCountUserFiles(Long userId);
 }

@@ -1,5 +1,6 @@
 package com.lch.bills.pojo;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -21,8 +22,10 @@ public class BillsType {
     //类型，0公共的 1支出 2收入
     private Integer type;
 
+    @JsonFormat(pattern = "yyyy-MM-dd",timezone = "GMT+8")
     private Date createDate;
 
+    @JsonFormat(pattern = "yyyy-MM-dd",timezone = "GMT+8")
     private Date updateDate;
 
 

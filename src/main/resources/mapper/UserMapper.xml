@@ -44,12 +44,21 @@
 
     <select id="CountStatistics" resultType="com.lch.bills.pojo.vo.CountInfo">
         SELECT
-            (SELECT COUNT(*) from t_bills where userId = 1 ) as totalBillsNums,
+            (SELECT COUNT(*) from t_bills where userId = #{userId} ) as totalBillsNums,
             (SELECT SUM(t.num) from (SELECT COUNT(1) as num from t_bills where userId = #{userId} GROUP BY DATE_FORMAT(createDate, '%Y%m%d')) t)  as totalKeepAccountsDays,
             (SELECT IFNULL(SUM(money),0) from t_bills where userId = #{userId} and type = 1 ) as totalPay,
             (SELECT IFNULL(SUM(money),0) from t_bills where userId = #{userId} and type = 2) as totalEarn,
             (SELECT DATEDIFF(NOW(),MIN(createDate)) from t_bills where userId = #{userId}) as totalDays
 
     </select>
+
+	<insert id="addUserFiles">
+
+		insert into t_user_files(
+		userId,filePath,remarks,createDate
+		)
+		select #{userId},#{filePath},#{remarks},now() from dual
+		where NOT EXISTS(SELECT id FROM t_user_files WHERE `filePath` = #{filePath})
+	</insert>
 
 </mapper>

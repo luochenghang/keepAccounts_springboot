@@ -339,7 +339,30 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
     public static Boolean isAppointLength(String text, int sl, int bl) {
         return text.length() >= sl && text.length() <= bl;
     }
-
+    /**
+     * 是否包含指定参数
+     *
+     * @param val
+     * @param objs
+     * @return
+     */
+    public static boolean isAppointParam(Object val, Object... objs) {
+        if (val == null) {
+            return false;
+        }
+        if (objs != null && objs.length > 0) {
+            int f = 0;
+            for (int i = 0; i < objs.length; i++) {
+                if (val.equals(objs[i])) {
+                    ++f;
+                }
+            }
+            if (f == 0) {
+                return false;
+            }
+        }
+        return true;
+    }
 
     /**
      * 获取去掉参数的url

@@ -5,14 +5,15 @@ import com.lch.bills.common.wechat.WeChatSession;
 import com.lch.bills.common.wechat.WeChatUtils;
 import com.lch.bills.jwt.JwtInfo;
 import com.lch.bills.jwt.JwtUtils;
+import com.lch.bills.pojo.Bills;
 import com.lch.bills.pojo.UlBo;
-import com.lch.bills.pojo.User;
 import com.lch.bills.pojo.UserBase;
+import com.lch.bills.pojo.UserFiles;
 import com.lch.bills.pojo.vo.CountInfo;
+import com.lch.bills.repo.BillsRepo;
 import com.lch.bills.repo.UserRepo;
 import com.lch.bills.service.UserService;
-import com.lch.bills.utils.MD5Util;
-import com.lch.bills.utils.RegexUtils;
+import com.lch.bills.utils.ExcelUtils;
 import com.lch.bills.utils.StringUtils;
 import com.lch.bills.utils.UserUtils;
 import org.slf4j.Logger;
@@ -21,8 +22,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -31,21 +34,23 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private UserRepo userRepo;
 
+    @Autowired
+    private BillsRepo billsRepo;
+
     @Override
     public Map<String, Object> login(UlBo vo, String src, String appid, String appSecret) throws Exception {
-         //保存用户信息
-            UserBase user = this.save(vo, src, appid, appSecret);
-            //用户登录
-            String token = JwtUtils.generatorToken(new JwtInfo(String.valueOf(user.getId())));
-            // 存在用户id，则保存
-            //UserUtils.setCurrentUserId(Long.valueOf(uid));
-            //封装返回值
-            Map<String, Object> map = new HashMap<>();
-            map.put("token", token);
-            map.put("userId",user.getId());
-            return map;
+        //保存用户信息
+        UserBase user = this.save(vo, src, appid, appSecret);
+        //用户登录
+        String token = JwtUtils.generatorToken(new JwtInfo(String.valueOf(user.getId())));
+        // 存在用户id，则保存
+        //UserUtils.setCurrentUserId(Long.valueOf(uid));
+        //封装返回值
+        Map<String, Object> map = new HashMap<>();
+        map.put("token", token);
+        map.put("userId", user.getId());
+        return map;
     }
-
 
 
     @Override
@@ -53,9 +58,30 @@ public class UserServiceImpl implements UserService {
         return userRepo.CountStatistics(UserUtils.getCurrentUserId());
     }
 
+    @Override
+    public int addUserFiles() throws Exception {
+        UserFiles userFiles = new UserFiles();
+        Long userId = UserUtils.getCurrentUserId();
+
+        int countUserFiles = userRepo.getCountUserFiles(userId);
+        if (countUserFiles > 3) {
+            throw new Exception("每日只能导出三次记录");
+        }
+
+        List<Bills> list = billsRepo.getAllBillsList(userId);
+        String filePath = ExcelUtils.createExcel(list);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        String today = sdf.format(new Date());
+        String remarks = "这是" +today + "导出文件第" + (countUserFiles+1) + "次";
+        userFiles.setUserId(userId).setFilePath(filePath).setRemarks(remarks);
+
+        return userRepo.addUserFiles(userFiles);
+    }
+
 
     /**
      * 保存用户信息
+     *
      * @param src
      * @param appid
      * @param appSecret
@@ -77,7 +103,7 @@ public class UserServiceImpl implements UserService {
             user.setPortrait(bo.getPortrait());
             user.setSex(bo.getSex());
             userRepo.addUser(user);
-        }else {
+        } else {
             // 若存在，则更新基本信息
             user.setId(userBase.getId());
             user.setNickName(bo.getNickName());
@@ -91,6 +117,7 @@ public class UserServiceImpl implements UserService {
 
     /**
      * 解析微信用户数据
+     *
      * @param bo
      * @param appid
      * @param appSecret

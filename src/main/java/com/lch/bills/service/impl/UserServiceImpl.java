@@ -64,7 +64,7 @@ public class UserServiceImpl implements UserService {
         Long userId = UserUtils.getCurrentUserId();
 
         int countUserFiles = userRepo.getCountUserFiles(userId);
-        if (countUserFiles > 3) {
+        if (countUserFiles > 2) {
             throw new Exception("每日只能导出三次记录");
         }
 
@@ -72,10 +72,16 @@ public class UserServiceImpl implements UserService {
         String filePath = ExcelUtils.createExcel(list);
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         String today = sdf.format(new Date());
-        String remarks = "这是" +today + "导出文件第" + (countUserFiles+1) + "次";
+        String remarks = today + "导出文件第" + (countUserFiles+1) + "次";
         userFiles.setUserId(userId).setFilePath(filePath).setRemarks(remarks);
 
         return userRepo.addUserFiles(userFiles);
+    }
+
+    @Override
+    public List<UserFiles> getUserFilesList() {
+        Long userId = UserUtils.getCurrentUserId();
+        return userRepo.getUserFilesList(userId);
     }
 
 

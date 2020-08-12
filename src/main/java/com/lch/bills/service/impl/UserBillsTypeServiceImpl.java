@@ -2,6 +2,7 @@ package com.lch.bills.service.impl;
 
 import com.lch.bills.pojo.BillsType;
 import com.lch.bills.pojo.UserBillsType;
+import com.lch.bills.repo.BillsRepo;
 import com.lch.bills.repo.UserBillsTypeRepo;
 import com.lch.bills.service.UserBillsTypeService;
 import com.lch.bills.utils.RegexUtils;
@@ -16,6 +17,9 @@ public class UserBillsTypeServiceImpl implements UserBillsTypeService {
 
     @Autowired
     private UserBillsTypeRepo userBillsTypeRepo;
+
+    @Autowired
+    private BillsRepo billsRepo;
 
     @Override
     public void addUserBillsType(UserBillsType userBillsType) throws Exception {
@@ -33,8 +37,11 @@ public class UserBillsTypeServiceImpl implements UserBillsTypeService {
 
     @Override
     public int delBillsType(Long id) {
-
-        return userBillsTypeRepo.delBillsType(id, UserUtils.getCurrentUserId());
+        Long userId = UserUtils.getCurrentUserId();
+        //删除类型将删除该类型下的所有账单
+        Long userBillsTypeId = id;
+        billsRepo.delBillsByTypeId(userBillsTypeId,userId);
+        return userBillsTypeRepo.delBillsType(id, userId);
     }
 
     @Override

@@ -103,6 +103,17 @@ public class UserController extends BaseController {
         }
     }
 
+    //查询用户导出数据
+    @GetMapping("getUserFilesList")
+    public AjaxResponse getUserFilesList() {
+        logger.info("getUserFilesList:");
+        try {
+            return succees(userService.getUserFilesList());
+        }catch (Exception e){
+            return fail(e.getMessage());
+        }
+    }
+
     /*************************************************************/
     //测试接口，登录状态
     @GetMapping("get")

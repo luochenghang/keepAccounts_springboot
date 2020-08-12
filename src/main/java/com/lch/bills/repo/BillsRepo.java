@@ -88,4 +88,8 @@ public interface BillsRepo {
 
 
     List<Bills> getAllBillsList(Long userId);
+
+    //删除类型时删除对应的所有账单
+    @Delete("delete from t_bills where userBillsTypeId=#{userBillsTypeId} and userId=#{userId}")
+    Integer delBillsByTypeId(Long userBillsTypeId,Long userId);
 }

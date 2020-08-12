@@ -2,8 +2,10 @@ package com.lch.bills.service;
 
 import com.lch.bills.common.exceptions.ServiceException;
 import com.lch.bills.pojo.UlBo;
+import com.lch.bills.pojo.UserFiles;
 import com.lch.bills.pojo.vo.CountInfo;
 
+import java.util.List;
 import java.util.Map;
 
 public interface UserService {
@@ -35,4 +37,6 @@ public interface UserService {
     CountInfo CountStatistics();
 
     int addUserFiles() throws Exception;
+
+    List<UserFiles> getUserFilesList();
 }

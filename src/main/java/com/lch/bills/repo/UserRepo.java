@@ -6,6 +6,8 @@ import com.lch.bills.pojo.vo.CountInfo;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
+import java.util.List;
+
 @Mapper
 public interface UserRepo {
 
@@ -29,4 +31,7 @@ public interface UserRepo {
 
     @Select("select count(1) from t_user_files where userId = #{userId} and to_days(createDate)=to_days(now())")
     int getCountUserFiles(Long userId);
+
+    @Select("select * from t_user_files where userId = #{userId} order by createDate desc")
+    List<UserFiles> getUserFilesList(Long userId);
 }

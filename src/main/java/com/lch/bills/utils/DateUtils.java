@@ -170,12 +170,17 @@ public class DateUtils {
 
             //获取最小日期当前周 周一
             Date min_time = sdf.parse(getTimeInterval(minDate).split(",")[0]);
-            if (n == 0 && minDate.compareTo(sdf.parse(current_time)) <= 0 && sdf.parse(current_time).compareTo(maxDate)<=0){
+            //获取最大日期当前周 周天
+            Date max_time = sdf.parse(getTimeInterval(maxDate).split(",")[1]);
+
+            if (n == 0 && sdf.parse(current_time).compareTo(min_time) >= 0
+                    && sdf.parse(current_time).compareTo(max_time) <= 0){
                 map.put(current_time, "本周");
             }
 
             if (min_time.compareTo(sdf.parse(current_time)) > 0) {
                 bo = false;
+                break;
             }
             if (n > 0)
                 map.put(current_time, "上" + n + "周");
@@ -189,10 +194,9 @@ public class DateUtils {
         while (next) {
             String currentWeek = getLastTimeInterval(t);
             String array[] = currentWeek.split(",");
-            String end_time = array[1];
             String start_time = array[0];//本周第一天
 
-            if (maxDate.compareTo(sdf.parse(end_time)) <= 0) {//如果下t周的最大日期大于等于传过来的最大日期就结束循环
+            if (maxDate.compareTo(sdf.parse(start_time)) < 0) {//如果下t周的最大日期大于等于传过来的最大日期就结束循环
                 next = false;
                 break;
             }
@@ -295,61 +299,8 @@ public class DateUtils {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         Calendar cal = Calendar.getInstance();
 
-        Date startDate = sdf.parse("2020-08-09");
-
-
-//        cal.setTime(sdf.parse("2010-08-03"));
-//        System.out.println(cal.get(Calendar.DAY_OF_WEEK)); //3  星期1
-//        cal.setTime(sdf.parse("2010-07-04"));
-        System.out.println(getLastDay("2020-01"));//4 星期2
-        System.out.println(getLastDay("2020-02"));//4 星期2
-        System.out.println(getLastDay("2020-03"));//4 星期2
-        System.out.println(getLastDay("2020-04"));//4 星期2
-        System.out.println(getLastDay("2020-05"));//4 星期2
-        System.out.println(getLastDay("2020-06"));//4 星期2
-        System.out.println(getLastDay("2020-07"));//4 星期2
-        System.out.println(getLastDay("2020-08"));//4 星期2
-        System.out.println(getLastDay("2020-09"));//4 星期2
-//        System.out.println(getWeekMap(sdf.parse("2020-08-09"), sdf.parse("2020-08-09")));//4 星期2
-//        System.out.println(getYearMap(sdf.parse("2020-08-09"), sdf.parse("2020-08-09")));//4 星期2
-//
-//        System.out.println(getWeekMap(sdf.parse("2020-08-09"), sdf.parse("2020-08-10")));//4 星期2
-//        System.out.println(getWeekMap(sdf.parse("2020-08-09"), sdf.parse("2020-08-10")));//4 星期2
-//        System.out.println(getYearMap(sdf.parse("2020-08-09"), sdf.parse("2020-08-09")));//4 星期2
-//
-//        System.out.println(getWeekMap(sdf.parse("2020-08-09"), sdf.parse("2020-08-10")));//4 星期2
-//        System.out.println(getWeekMap(sdf.parse("2020-08-09"), sdf.parse("2020-08-09")));//4 星期2
-//        System.out.println(getYearMap(sdf.parse("2020-08-09"), sdf.parse("2020-08-09")));//4 星期2
-//
-//        System.out.println(getWeekMap(sdf.parse("2020-08-09"), sdf.parse("2020-09-09")));//4 星期2
-//        System.out.println(getWeekMap(sdf.parse("2020-08-09"), sdf.parse("2020-09-09")));//4 星期2
-//        System.out.println(getYearMap(sdf.parse("2020-08-09"), sdf.parse("2020-09-09")));//4 星期2
-
-//        cal.setTime(sdf.parse("2010-08-05"));
-//        System.out.println(cal.get(Calendar.DAY_OF_WEEK)); //星期3
-//        cal.setTime(sdf.parse("2010-08-06"));
-//        System.out.println(cal.get(Calendar.DAY_OF_WEEK));
-//        cal.setTime(sdf.parse("2010-08-07"));
-//        System.out.println(cal.get(Calendar.DAY_OF_WEEK));//7
-//        cal.setTime(sdf.parse("2010-08-08"));
-//        System.out.println(cal.get(Calendar.DAY_OF_WEEK));//1 6
-//
-//        cal.setTime(sdf.parse("2010-08-09"));
-//        System.out.println(cal.get(Calendar.DAY_OF_WEEK));
-//
-//        cal.setTime(sdf.parse("2010-08-10"));
-//        System.out.println(cal.get(Calendar.DAY_OF_WEEK));
-
-//        Date endDate = sdf.parse("2025-09-19");
-//        System.out.println(getLastTimeInterval(0));
-//        System.out.println(getLastTimeInterval(1));
-//        System.out.println(getLastTimeInterval(2));
-//        System.out.println(getLastTimeInterval(3));
-//        System.out.println(getLastTimeInterval(4));
-
-//        System.out.println(getMonthMap(null, null));
-//        System.out.println(getYearMap(null, null));
-//        System.out.println(getWeekMap(null, null));
+        Date startDate = sdf.parse("2020-08-2");
+        Date end = sdf.parse("2020-08-17");
 
     }
 

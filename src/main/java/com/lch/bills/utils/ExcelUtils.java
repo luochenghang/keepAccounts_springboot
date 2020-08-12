@@ -29,6 +29,7 @@ public class ExcelUtils {
 
 
     public static String createExcel(List<Bills> list){
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         FileOutputStream fos=null;
         Workbook workbook=new XSSFWorkbook();
         Sheet sheet=workbook.createSheet("账单列表");
@@ -46,7 +47,7 @@ public class ExcelUtils {
             Row rowData=sheet.createRow((short)j);
             //第一列数据
             Cell cell0=rowData.createCell((short)0);
-            cell0.setCellValue(t.getCreateDate());
+            cell0.setCellValue(sdf.format(t.getCreateDate()));
             //设置单元格的宽度
             sheet.setColumnWidth((short)0, (short)4000);
             //第二列数据
@@ -76,14 +77,13 @@ public class ExcelUtils {
 //            String basePath = "D:/bills/";
             String basePath = "/bills/exportFile/";
 
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
             Date date = new Date();
 
             String fileName = UUID.randomUUID().toString().replaceAll("-", "");
             String dateStr = sdf.format(date);
 
 //          String filePath = basePath + dateStr + "/"+ fileName + ".xlsx";//linux下
-            String filePath = "D:/"+fileName +".xlsx"; //window下
+            String filePath = "D:/bills/"+fileName +".xlsx"; //window下
             System.out.println(filePath);
 
             File file = new File(filePath);

@@ -82,8 +82,8 @@ public class ExcelUtils {
             String fileName = UUID.randomUUID().toString().replaceAll("-", "");
             String dateStr = sdf.format(date);
 
-//          String filePath = basePath + dateStr + "/"+ fileName + ".xlsx";//linux下
-            String filePath = "D:/bills/"+fileName +".xlsx"; //window下
+          String filePath = basePath + dateStr + "/"+ fileName + ".xlsx";//linux下
+//            String filePath = "D:/bills/"+fileName +".xlsx"; //window下
             System.out.println(filePath);
 
             File file = new File(filePath);

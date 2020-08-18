@@ -1,5 +1,6 @@
 package com.lch.bills.service.impl;
 
+import com.lch.bills.common.App;
 import com.lch.bills.common.exceptions.ServiceException;
 import com.lch.bills.common.wechat.WeChatSession;
 import com.lch.bills.common.wechat.WeChatUtils;
@@ -70,9 +71,12 @@ public class UserServiceImpl implements UserService {
 
         List<Bills> list = billsRepo.getAllBillsList(userId);
         String filePath = ExcelUtils.createExcel(list);
+
+        //  http://luoch.cn/bills/exportFiles/.....
+        filePath = App.BASE_PATH + filePath;
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         String today = sdf.format(new Date());
-        String remarks = today + "导出文件第" + (countUserFiles+1) + "次";
+        String remarks = today + "导出文件第" + (countUserFiles + 1) + "次";
         userFiles.setUserId(userId).setFilePath(filePath).setRemarks(remarks);
 
         return userRepo.addUserFiles(userFiles);

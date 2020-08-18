@@ -1,8 +1,6 @@
 package com.lch.bills.common;
 
 
-import com.lch.bills.utils.ConfigUtils;
-
 /**
  * 微信APP相关常量
  * 
@@ -19,7 +17,7 @@ public final class App {
 	public static final String REDIS_JBSLAMP_TOKEN_KEY = "jbslamp_user_token";
 
 	/** 上传的基础路径 */
-//	public static final String BASE_PATH = loader.getConfigValue("base_path");
+	public static final String BASE_PATH = "http://luoch.cn";
 //
 //	public static final String DOMAIN_PATH = loader.getConfigValue("domain_path");
 	

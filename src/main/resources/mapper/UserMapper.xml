@@ -45,7 +45,7 @@
     <select id="CountStatistics" resultType="com.lch.bills.pojo.vo.CountInfo">
         SELECT
             (SELECT COUNT(*) from t_bills where userId = #{userId} ) as totalBillsNums,
-            (SELECT IFNULL(SUM(t.num),0) from (SELECT COUNT(1) as num from t_bills where userId = #{userId} GROUP BY DATE_FORMAT(createDate, '%Y%m%d')) t)  as totalKeepAccountsDays,
+            (SELECT IFNULL(SUM(t.num),0) from (SELECT 1 as num from t_bills where userId = #{userId} GROUP BY DATE_FORMAT(createDate, '%Y%m%d')) t)  as totalKeepAccountsDays,
             (SELECT IFNULL(SUM(money),0) from t_bills where userId = #{userId} and type = 1 ) as totalPay,
             (SELECT IFNULL(SUM(money),0) from t_bills where userId = #{userId} and type = 2) as totalEarn,
             (SELECT IFNULL(DATEDIFF(NOW(),MIN(createDate)),0) from t_bills where userId = #{userId}) as totalDays
